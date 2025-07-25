@@ -17,6 +17,7 @@
   <title>Frontend Mentor | Space tourism website</title>
   <script src="index.js" defer></script>
   <script src="crew.js" defer></script>
+
   
 </head>
 
@@ -24,7 +25,9 @@
   <a class="skip-to-content" href="#main">Skip to content</a>
   <header class="primary-header flex">
     <div>
+      <a href="index.html">
       <img src="./assets/shared/logo.svg" alt="space tourism logo" class="logo">
+      </a>
     </div>
     <button class="mobile-nav-toggle" aria-controls="primary-navigation"><span class="sr-only" aria-expanded="false">Menu</span></button>
     <nav>
@@ -39,22 +42,16 @@
   
   <main id="main" class="grid-container grid-container--crew flow">
     <h1 class="numbered-title"><span aria-hidden="true">02</span> Meet your crew</h1>
+    <div class="dot-indicators flex" role="tablist" aria-label="Crew member list"></div>
     
-    <div class="dot-indicators flex">
-      <button aria-selected="true"><span class="sr-only">The commander</span></button>
-      <button aria-selected="false"><span class="sr-only">The mission specialist</span></button>
-      <button aria-selected="false"><span class="sr-only">The pilot</span></button>
-      <button aria-selected="false"><span class="sr-only">The crew engineer</span></button>
-    </div>
-    
-    <article class="crew-details flow">
+    <article id="crew-details-container" class="crew-details flow" role="tabpanel">
       <header class="flow flow--space-small">
-        <h2 class="fs-600 ff-serif uppercase">Commander</h2>
-        <p class="fs-700 uppercase ff-serif">Sally Ride</p>
+        <h2 class="fs-600 ff-serif uppercase" id="crew-role"></h2>
+        <p class="fs-700 uppercase ff-serif" id="crew-name"></p>
       </header>
-      <p>Sally Kristen Ride was an American astronaut and physicist. She became the first American woman in space in 1983 aboard the Space Shuttle Challenger. She inspired generations with her pioneering spirit and contributions to science and education.</p>
+      <p id="crew-bio"></p>
     </article>
-    <picture>
+    <picture id="crew-image-container">
       <source type="image/webp" id="crew-img-webp">
       <img id="crew-img-png" alt="Crew Member">
     </picture>

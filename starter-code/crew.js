@@ -1,40 +1,124 @@
-fetch("data.json")
-  .then((response) => response.json())
-  .then((data) => {
-    const crewData = data.crew;
+// crew.js
 
-    const dots = document.querySelectorAll(".dot-indicators button");
-    const role = document.querySelector(".crew-details h2");
-    const name = document.querySelector(".crew-details .fs-700");
-    const bio = document.querySelector(".crew-details p:not(.fs-700)");
+document.addEventListener('DOMContentLoaded', () => {
+  const tabList = document.querySelector('.dot-indicators');
+  const crewRole = document.getElementById('crew-role');
+  const crewName = document.getElementById('crew-name');
+  const crewBio = document.getElementById('crew-bio');
+  const crewImageContainer = document.getElementById('crew-image-container');
 
-    const img = document.getElementById("crew-img-png");
-    const source = document.getElementById("crew-img-webp");
+  let crewData = []; 
+  let currentCrewIndex = 0; 
 
-    updateCrew(0);
+  async function fetchCrewData() {
+      try {
+          const response = await fetch('./data.json'); 
+          const data = await response.json();
+          crewData = data.crew; 
+          initializeCrewCarousel();
+      } catch (error) {
+          console.error('Error fetching crew data:', error);
+         
+      }
+  }
 
-    dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        dots.forEach((d) => d.setAttribute("aria-selected", "false"));
-        dot.setAttribute("aria-selected", "true");
-        updateCrew(index);
+  
+  function initializeCrewCarousel() {
+      crewData.forEach((crewMember, index) => {
+          const button = document.createElement('button');
+          button.setAttribute('role', 'tab');
+          button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+          button.setAttribute('aria-controls', `crew-tab-${index}`); 
+          button.setAttribute('tabindex', index === 0 ? '0' : '-1');
+          button.dataset.index = index;
+
+          const srOnlySpan = document.createElement('span');
+          srOnlySpan.classList.add('sr-only');
+          srOnlySpan.textContent = `The ${crewMember.role.toLowerCase()}`;
+          button.appendChild(srOnlySpan);
+          tabList.appendChild(button);
       });
-    });
 
-    function updateCrew(index) {
-      const member = crewData[index];
+      const tabs = tabList.querySelectorAll('button');
 
-      role.textContent = member.role;
-      name.textContent = member.name;
-      bio.textContent = member.bio;
+      
+      tabList.addEventListener('click', (e) => {
+          const clickedButton = e.target.closest('button');
+          if (!clickedButton) return;
 
-      if (img) {
-        img.src = member.images.png;
-        img.alt = member.name;
+          const index = parseInt(clickedButton.dataset.index, 10);
+          if (!isNaN(index) && index !== currentCrewIndex) {
+              showCrewMember(index);
+          }
+      });
+
+  
+      tabList.addEventListener('keydown', (e) => {
+          let newIndex = currentCrewIndex;
+
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+              newIndex = (currentCrewIndex + 1) % tabs.length;
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+              newIndex = (currentCrewIndex - 1 + tabs.length) % tabs.length;
+          } else if (e.key === 'Home') {
+              newIndex = 0;
+          } else if (e.key === 'End') {
+              newIndex = tabs.length - 1;
+          } else {
+              return; 
+          }
+
+          if (newIndex !== currentCrewIndex) {
+              e.preventDefault();
+              showCrewMember(newIndex);
+              tabs[newIndex].focus(); 
+          }
+      });
+
+      showCrewMember(0);
+  }
+
+  
+  function showCrewMember(index) {
+      if (index < 0 || index >= crewData.length) {
+          console.error("Invalid crew member index:", index);
+          return;
       }
 
-      if (source) {
-        source.srcset = member.images.webp;
+      const crewMember = crewData[index];
+      const tabs = tabList.querySelectorAll('button'); 
+
+      
+      crewRole.textContent = crewMember.role;
+      crewName.textContent = crewMember.name;
+      crewBio.textContent = crewMember.bio;
+
+     
+      crewImageContainer.innerHTML = `
+          <source srcset="${crewMember.images.webp}" type="image/webp">
+          <img src="${crewMember.images.png}" alt="${crewMember.name}">
+      `;
+
+     
+      tabs.forEach((tab, i) => {
+          if (i === index) {
+              tab.setAttribute('aria-selected', 'true');
+              tab.setAttribute('tabindex', '0');
+              document.getElementById('crew-details-container').setAttribute('tabindex', '0');
+          } else {
+              tab.setAttribute('aria-selected', 'false');
+              tab.setAttribute('tabindex', '-1');
+          }
+      });
+    
+      if (currentCrewIndex !== index) { 
+           document.getElementById('crew-details-container').setAttribute('tabindex', '-1');
       }
-    }
-  });
+
+
+      currentCrewIndex = index;
+  }
+
+
+  fetchCrewData();
+});
